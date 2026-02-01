@@ -1,0 +1,43 @@
+services:
+  python-app:
+    build:
+      context: .
+    container_name: smarthome-api
+    restart: unless-stopped
+    init: true
+    # env_file: ./.env  # Uncomment if .env file exists
+    # If your app requires ports to be exposed, add them here. For example:
+    ports:
+      - "8000:8000"
+    # If your app requires a database or other services, add them below and set depends_on accordingly.
+    # depends_on:
+    #   - postgres
+    # networks:
+    #   - appnet
+
+# If you add external services (e.g., a database), define them here. Example:
+#  postgres:
+#    image: postgres:latest
+#    restart: unless-stopped
+#    environment:
+#      POSTGRES_USER: user
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: appdb
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD", "pg_isready", "-U", "user"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    networks:
+#      - appnet
+
+# Uncomment and define networks if you have multiple services that need to communicate
+#networks:
+#  appnet:
+#    driver: bridge
+
+# Uncomment and define volumes if you have persistent data (e.g., for databases)
+#volumes:
+#  pgdata:

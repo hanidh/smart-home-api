@@ -1,0 +1,38 @@
+# syntax=docker/dockerfile:1
+
+FROM python:3.13-slim AS base
+WORKDIR /app
+
+# Builder stage: install dependencies in a venv
+FROM base AS builder
+WORKDIR /app
+
+# Copy only requirements.txt first for better cache usage
+COPY --link requirements.txt ./
+
+# Create virtual environment and install dependencies using pip cache
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m venv .venv && \
+    .venv/bin/pip install --upgrade pip && \
+    .venv/bin/pip install -r requirements.txt
+
+# Copy application code (excluding .env and other sensitive files)
+COPY --link . .
+
+# Final stage: minimal image with venv and app code, non-root user
+FROM base AS final
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system appgroup && adduser --system --group appuser
+USER appuser
+
+# Copy venv and app code from builder
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app /app
+
+# Set PATH to use venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Entrypoint (adjust as needed, e.g. main.py)
+CMD ["python", "main.py"]
